@@ -1,28 +1,28 @@
 // ============================================================
-// Serverless proxy for ChronoAI's Grok (xAI) calls.
+// Serverless proxy for ChronoAI's Groq calls.
 // ============================================================
 // This runs on Vercel as a Node serverless function at /api/chronoai.
-// The Grok API key lives ONLY in the server-side env var GROK_API_KEY
+// The Groq API key lives ONLY in the server-side env var GROQ_API_KEY
 // (no VITE_ prefix, so Vite never bundles it into client code and it
 // never reaches the browser). The frontend calls this endpoint instead
-// of x.ai directly.
+// of Groq directly.
 //
 // Setup on Vercel:
-//   1. Get an API key from https://x.ai/api
+//   1. Get a free API key from https://console.groq.com/keys
 //   2. In your Vercel project settings, add an Environment Variable:
-//        Name:  GROK_API_KEY
-//        Value: your_grok_api_key_here
+//        Name:  GROQ_API_KEY
+//        Value: your_groq_api_key_here
 //   3. Redeploy. Do NOT prefix it with VITE_ — that would expose it
 //      to the client bundle again.
 //
 // Local dev: `vercel dev` will run this function locally and read
-// GROK_API_KEY from your local .env (see .env.example). Plain
+// GROQ_API_KEY from your local .env (see .env.example). Plain
 // `npm run dev` (vite only) does not execute /api functions, so
 // ChronoAI will fall back to its offline message unless you run
 // `vercel dev` instead.
 // ============================================================
 
-const GROK_API_URL = 'https://api.x.ai/v1/chat/completions';
+const GROQ_API_URL = 'https://api.groq.com/openai/v1/chat/completions';
 
 // Kept in sync with src/utils/constants.js's CHRONOAI_SYSTEM_PROMPT. This
 // file can't import from src/ (Vercel bundles /api functions separately
@@ -36,12 +36,12 @@ export default async function handler(req, res) {
     return res.status(405).json({ error: 'Method not allowed' });
   }
 
-  const apiKey = process.env.GROK_API_KEY;
+  const apiKey = process.env.GROQ_API_KEY;
 
   if (!apiKey) {
     return res.status(200).json({
       reply:
-        "*static crackles* ...signal too weak to reach 2026. (No GROK_API_KEY configured on the server — add one in your Vercel project's environment variables.)",
+        "*static crackles* ...signal too weak to reach 2026. (No GROQ_API_KEY configured on the server — add one in your Vercel project's environment variables.)",
     });
   }
 
@@ -54,25 +54,25 @@ export default async function handler(req, res) {
   }
 
   try {
-    const response = await fetch(GROK_API_URL, {
+    const response = await fetch(GROQ_API_URL, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
         Authorization: `Bearer ${apiKey}`,
       },
       body: JSON.stringify({
-        model: 'grok-4.3',
+        model: 'openai/gpt-oss-120b',
         messages: [{ role: 'system', content: CHRONOAI_SYSTEM_PROMPT }, ...messages],
         max_tokens: 300,
         temperature: 0.9,
       }),
     });
 
-   if (!response.ok) {
-  const errorBody = await response.text();
-  console.error('Grok API error body:', errorBody);
-  throw new Error(`Grok API error: ${response.status} - ${errorBody}`);
-}
+    if (!response.ok) {
+      const errorBody = await response.text();
+      console.error('Groq API error body:', errorBody);
+      throw new Error(`Groq API error: ${response.status} - ${errorBody}`);
+    }
 
     const data = await response.json();
     const reply = data.choices?.[0]?.message?.content ?? 'Transmission lost...';
