@@ -68,9 +68,11 @@ export default async function handler(req, res) {
       }),
     });
 
-    if (!response.ok) {
-      throw new Error(`Grok API error: ${response.status}`);
-    }
+   if (!response.ok) {
+  const errorBody = await response.text();
+  console.error('Grok API error body:', errorBody);
+  throw new Error(`Grok API error: ${response.status} - ${errorBody}`);
+}
 
     const data = await response.json();
     const reply = data.choices?.[0]?.message?.content ?? 'Transmission lost...';
