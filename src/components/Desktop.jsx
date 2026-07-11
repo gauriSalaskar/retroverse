@@ -50,6 +50,62 @@ const APP_META = {
 const CAFE_START_SECONDS = 60 * 60; // 60 minutes, spec shows "59:59" ticking down
 
 /**
+ * IconSlot
+ * A single desktop icon that simulates loading in over a slow, janky
+ * connection: shows a plain gray placeholder box first, then - after
+ * an irregular random delay per icon (not an even stagger) - pops in
+ * abruptly with no easing, occasionally flickering once or twice right
+ * before it settles, like an old browser finishing a chunky image
+ * download.
+ */
+function IconSlot({ icon, index, onOpen }) {
+  const [loaded, setLoaded] = useState(false);
+  const [flickerOn, setFlickerOn] = useState(true);
+
+  useEffect(() => {
+    // Irregular delay: a base stagger plus a random jolt, so icons
+    // don't land in a neat, predictable rhythm.
+    const baseDelay = 400 + index * (250 + Math.random() * 500);
+    const jitter = Math.random() * 600;
+    const totalDelay = baseDelay + jitter;
+
+    const loadTimer = setTimeout(() => {
+      // Quick double-flicker right as it "finishes downloading".
+      setFlickerOn(false);
+      setTimeout(() => setFlickerOn(true), 60);
+      setTimeout(() => setFlickerOn(false), 130);
+      setTimeout(() => {
+        setFlickerOn(true);
+        setLoaded(true);
+      }, 190);
+    }, totalDelay);
+
+    return () => clearTimeout(loadTimer);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  if (!loaded) {
+    return (
+      <div className="flex flex-col items-center gap-1">
+        <span className="w-8 h-8 bg-gray-400/40 border border-gray-300/50 animate-pulse" />
+        <span className="w-14 h-2.5 bg-gray-400/30 animate-pulse" />
+      </div>
+    );
+  }
+
+  return (
+    <button
+      onDoubleClick={() => onOpen(icon.id)}
+      className="flex flex-col items-center gap-1 group"
+      style={{ opacity: flickerOn ? 1 : 0.15 }}
+    >
+      <span className="text-3xl drop-shadow-lg group-active:scale-95 transition">{icon.icon}</span>
+      <span className="text-white text-[11px] xp-icon-label text-center leading-tight">{icon.label}</span>
+    </button>
+  );
+}
+
+/**
  * Desktop
  * The heart of RetroVerse: the full Windows XP desktop with draggable
  * icons, a window manager (open/close/minimize/focus), the taskbar, the
@@ -194,22 +250,15 @@ export default function Desktop({ identity }) {
         </span>
       ))}
 
-      {/* Desktop icons - fade in one at a time, staggered, like each one
-          is slowly loading over a slow connection rather than appearing
-          all at once. */}
+      {/* Desktop icons - each one shows a blank "loading" placeholder
+          box first, then pops in abruptly (no easing) after an
+          irregular random delay, like images slowly, jankily
+          finishing download one at a time over a bad connection -
+          deliberately NOT a smooth uniform stagger, since that reads
+          as polished rather than laggy. */}
       <div className="grid grid-cols-1 gap-4 p-4 w-24 absolute top-0 left-0">
         {DESKTOP_ICONS.map((icon, i) => (
-          <motion.button
-            key={icon.id}
-            initial={{ opacity: 0, y: 8 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.4, delay: 0.3 + i * 0.35 }}
-            onDoubleClick={() => handleIconClick(icon.id)}
-            className="flex flex-col items-center gap-1 group"
-          >
-            <span className="text-3xl drop-shadow-lg group-active:scale-95 transition">{icon.icon}</span>
-            <span className="text-white text-[11px] xp-icon-label text-center leading-tight">{icon.label}</span>
-          </motion.button>
+          <IconSlot key={icon.id} icon={icon} index={i} onOpen={handleIconClick} />
         ))}
       </div>
 
