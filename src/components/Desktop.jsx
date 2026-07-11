@@ -194,17 +194,22 @@ export default function Desktop({ identity }) {
         </span>
       ))}
 
-      {/* Desktop icons */}
+      {/* Desktop icons - fade in one at a time, staggered, like each one
+          is slowly loading over a slow connection rather than appearing
+          all at once. */}
       <div className="grid grid-cols-1 gap-4 p-4 w-24 absolute top-0 left-0">
-        {DESKTOP_ICONS.map((icon) => (
-          <button
+        {DESKTOP_ICONS.map((icon, i) => (
+          <motion.button
             key={icon.id}
+            initial={{ opacity: 0, y: 8 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.4, delay: 0.3 + i * 0.35 }}
             onDoubleClick={() => handleIconClick(icon.id)}
             className="flex flex-col items-center gap-1 group"
           >
             <span className="text-3xl drop-shadow-lg group-active:scale-95 transition">{icon.icon}</span>
             <span className="text-white text-[11px] xp-icon-label text-center leading-tight">{icon.label}</span>
-          </button>
+          </motion.button>
         ))}
       </div>
 
