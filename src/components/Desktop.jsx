@@ -86,7 +86,7 @@ function IconSlot({ icon, index, onOpen }) {
 
   if (!loaded) {
     return (
-      <div className="flex flex-col items-center gap-1">
+      <div className="flex flex-col items-center gap-1 w-20">
         <span className="w-8 h-8 bg-gray-400/40 border border-gray-300/50 animate-pulse" />
         <span className="w-14 h-2.5 bg-gray-400/30 animate-pulse" />
       </div>
@@ -96,7 +96,7 @@ function IconSlot({ icon, index, onOpen }) {
   return (
     <button
       onDoubleClick={() => onOpen(icon.id)}
-      className="flex flex-col items-center gap-1 group"
+      className="flex flex-col items-center gap-1 group w-20"
       style={{ opacity: flickerOn ? 1 : 0.15 }}
     >
       <span className="text-3xl drop-shadow-lg group-active:scale-95 transition">{icon.icon}</span>
@@ -256,7 +256,10 @@ export default function Desktop({ identity }) {
           finishing download one at a time over a bad connection -
           deliberately NOT a smooth uniform stagger, since that reads
           as polished rather than laggy. */}
-      <div className="grid grid-cols-1 gap-4 p-4 w-24 absolute top-0 left-0">
+      <div
+        className="grid grid-flow-col grid-rows-6 gap-x-2 gap-y-4 p-4 absolute top-0 left-0"
+        style={{ height: 'calc(100vh - 48px)' }}
+      >
         {DESKTOP_ICONS.map((icon, i) => (
           <IconSlot key={icon.id} icon={icon} index={i} onOpen={handleIconClick} />
         ))}
