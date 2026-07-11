@@ -55,6 +55,11 @@ export default {
         blink: {
           '50%': { opacity: 0 },
         },
+        loadingBar: {
+          '0%': { transform: 'translateX(-100%)' },
+          '50%': { transform: 'translateX(20%)' },
+          '100%': { transform: 'translateX(100%)' },
+        },
       },
     },
   },

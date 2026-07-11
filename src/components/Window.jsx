@@ -1,6 +1,14 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
 import useSound from '../hooks/useSound';
+
+const LOADING_MESSAGES = [
+  'Connecting to server...',
+  'Buffering...',
+  'Establishing connection...',
+  'Downloading data...',
+  'Please wait...',
+];
 
 /**
  * Window
@@ -11,6 +19,11 @@ import useSound from '../hooks/useSound';
  *
  * Dragging is powered by Framer Motion's `drag` prop — no extra
  * dependency needed.
+ *
+ * The window chrome (title bar) appears instantly on open, but the
+ * body content fakes a brief old-internet "buffering" delay before
+ * rendering — a nod to how slow everything felt on 2006-era
+ * connections/hardware.
  */
 export default function Window({
   title,
@@ -25,6 +38,10 @@ export default function Window({
   children,
 }) {
   const { play: playOpen } = useSound('/src/assets/sounds/folder-open.mp3', { volume: 0.35 });
+  const [loading, setLoading] = useState(true);
+  const [loadingMessage] = useState(
+    LOADING_MESSAGES[Math.floor(Math.random() * LOADING_MESSAGES.length)]
+  );
 
   // Play the folder/window-open blip once when this window first mounts.
   // Window stays mounted (just hidden) while minimized - see Desktop.jsx,
@@ -34,6 +51,14 @@ export default function Window({
   useEffect(() => {
     playOpen();
     // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  // Fake old-internet buffering delay before content appears. Randomized
+  // so it doesn't feel mechanical across different app opens.
+  useEffect(() => {
+    const delay = 500 + Math.random() * 900; // 500-1400ms
+    const timer = setTimeout(() => setLoading(false), delay);
+    return () => clearTimeout(timer);
   }, []);
 
   if (minimized) return null;
@@ -75,7 +100,19 @@ export default function Window({
       </div>
 
       {/* Body */}
-      <div className="bg-silverChrome max-h-[70vh] overflow-y-auto">{children}</div>
+      <div className="bg-silverChrome max-h-[70vh] overflow-y-auto">
+        {loading ? (
+          <div className="flex flex-col items-center justify-center gap-3 py-12 px-4">
+            <span className="text-3xl animate-pulse">{icon}</span>
+            <p className="text-xs text-xpDarkBlue font-mssans">{loadingMessage}</p>
+            <div className="w-40 h-3 bg-white border border-gray-400 rounded-sm overflow-hidden">
+              <div className="h-full bg-xpBlue animate-[loadingBar_1.2s_ease-in-out_infinite]" />
+            </div>
+          </div>
+        ) : (
+          children
+        )}
+      </div>
     </motion.div>
   );
 }

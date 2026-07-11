@@ -14,6 +14,7 @@ import PhotoGallery from './PhotoGallery';
 import GamesFolder from './GamesFolder';
 import Achievements from './Achievements';
 import ChronoAI from './ChronoAI';
+import RetroBadges from './RetroBadges';
 import useAchievements from '../hooks/useAchievements';
 import useSound from '../hooks/useSound';
 import { getWallpaperStyle } from '../utils/constants';
@@ -283,6 +284,8 @@ export default function Desktop({ identity }) {
           />
         )}
       </AnimatePresence>
+
+      <RetroBadges />
 
       <Popups latestAchievement={latestAchievement} />
 
