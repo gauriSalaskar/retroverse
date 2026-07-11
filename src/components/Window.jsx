@@ -100,7 +100,7 @@ export default function Window({
       </div>
 
       {/* Body */}
-      <div className="bg-silverChrome max-h-[70vh] overflow-y-auto">
+      <div className="bg-silverChrome max-h-[70vh] overflow-y-auto choppy-scroll">
         {loading ? (
           <div className="flex flex-col items-center justify-center gap-3 py-12 px-4">
             <span className="text-3xl animate-pulse">{icon}</span>
@@ -110,7 +110,7 @@ export default function Window({
             </div>
           </div>
         ) : (
-          children
+          <div className="content-pop-in">{children}</div>
         )}
       </div>
     </motion.div>

@@ -181,3 +181,46 @@ body,
 .xp-icon-label {
   text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.9);
 }
+
+/* ---------------- LAG SIMULATION ---------------- */
+/* Random full-screen "freeze" stutter, toggled by LagEffects.jsx.
+   Pauses CSS animations and nudges contrast/brightness slightly to
+   feel like a frame drop. */
+.retro-freeze * {
+  animation-play-state: paused !important;
+}
+.retro-freeze {
+  filter: contrast(1.05) brightness(0.97);
+}
+
+/* Wait cursor flash on click, toggled by LagEffects.jsx. Purely
+   visual - does not delay real event handlers. */
+.retro-wait-cursor,
+.retro-wait-cursor * {
+  cursor: wait !important;
+}
+
+/* Content pop-in: used in Window.jsx so app content fades/slides in
+   after the fake loading screen, instead of snapping in instantly. */
+.content-pop-in {
+  animation: contentPopIn 0.4s ease-out;
+}
+@keyframes contentPopIn {
+  0% {
+    opacity: 0;
+    transform: translateY(6px) scale(0.98);
+  }
+  60% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+/* Choppy scroll: old browsers didn't have smooth/inertial scrolling -
+   this keeps scroll stepped/instant instead of buttery. */
+.choppy-scroll {
+  scroll-behavior: auto;
+}
