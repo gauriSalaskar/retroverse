@@ -23,7 +23,7 @@ export default function RetroBadges() {
   const digits = String(visitorCount).padStart(6, '0').split('');
 
   return (
-    <div className="absolute bottom-12 left-4 flex flex-col gap-2 z-10 pointer-events-none select-none">
+    <div className="absolute bottom-12 right-4 flex flex-col gap-2 z-10 pointer-events-none select-none items-end">
       {/* Scrolling marquee banner */}
       <div className="bg-black border-2 border-limeGreen w-56 overflow-hidden py-1 shadow-xpWindow">
         <div className="marquee-track animate-marquee text-limeGreen text-[11px] font-mssans whitespace-nowrap px-2">
